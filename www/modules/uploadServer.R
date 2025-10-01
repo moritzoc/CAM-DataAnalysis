@@ -325,17 +325,9 @@ uploadServer <- function(id, parent, globals) {
     })
 
     observeEvent(input$uploadProtocol, {
-<<<<<<< Updated upstream
       if (!is.null(protocol())) {
         message("successfully uploaded protocol!")
         v$protocol = TRUE
-=======
-      #print("observer for uploadProtocol is triggered")
-      if (!is.null(protocol())) {
-        message("successfully uploaded protocol!")
-        v$protocol = TRUE
-        #print(v$protocol)
->>>>>>> Stashed changes
       } else{
         v$protocol = FALSE
         showModal(
@@ -376,11 +368,6 @@ uploadServer <- function(id, parent, globals) {
     data <- reactive({
       # wait for upload
       req(ext())
-<<<<<<< Updated upstream
-=======
-      print("uploadedData ist being read")
-      #print(ext())
->>>>>>> Stashed changes
 
       ## if CAMEL data (checked by .txt ending)
       if (all(stringr::str_detect(string = ext(), pattern = "txt"))) {
@@ -440,15 +427,6 @@ uploadServer <- function(id, parent, globals) {
         ## if JSON file
       } else if (all(stringr::str_detect(string = ext(), pattern = "json"))) {
         
-<<<<<<< Updated upstream
-=======
-        print("Starting JSON-Branch")
-        #print(input$upload$datapath)
-        #print(ext())
-        #print("testIfJson:")
-        #print(testIfJson(input$upload$datapath))
-
->>>>>>> Stashed changes
         if(testIfJson(input$upload$datapath)) {
           raw <- jsonlite::fromJSON(input$upload$datapath, simplifyVector = FALSE)
         
@@ -716,37 +694,12 @@ uploadServer <- function(id, parent, globals) {
       }
 
       # nodes_raw$text_summarized <- nodes_raw$text
-<<<<<<< Updated upstream
-
-=======
-      print("Data is uploaded")
-      #print(str(v$df, max.level=1))
->>>>>>> Stashed changes
       return(v$df) ### ??? CAMfiles
     })
 
 
     ## SAVE to globals ##
     observeEvent(input$upload, {
-<<<<<<< Updated upstream
-=======
-      #print("Input upload:")
-      #print(input$upload)
-      #print("ext:")
-      #print(ext())
-      if (!exists("uploadedData") || is.null(uploadedData)){
-        print("uploadedData ist NULL!")
-        return(NULL)  
-      }
-      
-      dat <- tryCatch(uploadedData(), error = function(e) NULL)
-      if (is.null(dat)) {
-        print("uploadedData() ist NULL!")
-        return(NULL)  
-      }
-      req(dat)
-      
->>>>>>> Stashed changes
       req(ext())
       req(data())
       message("uploaded file(s) - extensions:", ext())
@@ -1238,7 +1191,6 @@ uploadServer <- function(id, parent, globals) {
       )
     })
 
-<<<<<<< Updated upstream
 #> Server
 split_data <- reactive({
   
@@ -1246,15 +1198,6 @@ split_data <- reactive({
   print(tmp_extensions)
   
   ## if CAMEL data (checked by .txt ending)
-=======
-    #> Server
-    split_data <- reactive({
-      
-      tmp_extensions <- tools::file_ext(input$split_uploadCAMfiles$name)
-      #print(tmp_extensions)
-      
-      ## if CAMEL data (checked by .txt ending)
->>>>>>> Stashed changes
 
   if (all(stringr::str_detect(string = tmp_extensions, pattern = "txt")) && length(tmp_extensions) == 3 && all(stringr::str_detect(string = input$split_uploadCAMfiles$name, pattern = "nodes|connectors|merged"))){
 
