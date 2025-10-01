@@ -31,6 +31,8 @@ compute_indicatorsCAM <- function(drawn_CAM = NULL,
     cat("Your specified drawn_CAM argument is of type:", typeof(drawn_CAM), "\n")
     cat("and / or the first list entry is of class:",  class(drawn_CAM[[1]]), "\n")
     stop("> specify a list with igraph classes")
+  } else if((typeof(drawn_CAM) == "list" & class(drawn_CAM[[1]]) == "igraph")) {
+    print("CAM correctly identified as igraph")
   }
   #
   # second check -> useless micro indicators?
@@ -74,11 +76,15 @@ compute_indicatorsCAM <- function(drawn_CAM = NULL,
   out_netind["num_nodes_neut_macro"]  <- NA
   out_netind["num_nodes_ambi_macro"]  <- NA
 
+  out_netind["num_uniq_edges_macro"] <- NA
   out_netind["num_edges_macro"]  <- NA
   out_netind["num_edges_solid_macro"]  <- NA
   out_netind["num_edges_dashed_macro"]  <- NA
   out_netind["num_edges_invaliddashed_macro"]  <- NA
   out_netind["meanWeightEdges_macro"]  <- NA
+  out_netind["num_edges_bidirectional_macro"]  <- NA
+  out_netind["num_edges_unidirectional_macro"]  <- NA
+  
 
   out_netind["reciprocity_macro"]  <- NA
   out_netind["assortativity_valence_macro"]  <- NA
@@ -193,6 +199,19 @@ compute_indicatorsCAM <- function(drawn_CAM = NULL,
     out_netind[i, "num_edges_macro"]  <- gsize(graph = drawn_CAM[[i]])
     out_netind[i, "num_edges_solid_macro"]  <- sum(str_detect(string = E(drawn_CAM[[i]])$lty, pattern = "1")) # solid
     out_netind[i, "num_edges_dashed_macro"]  <- sum(str_detect(string = E(drawn_CAM[[i]])$lty, pattern = "2")) # dashed
+
+    ## unique edges
+    #TEMP Hier, da das noch nicht klar ist, ob das immer so sein sollte.
+    edge_list <- as.data.frame(igraph::as_edgelist(drawn_CAM[[i]]))
+    #print("edge_list:")
+    #print(edge_list)
+
+    #unique_edges <- unique(edge_list)
+    #print("unique_edges:")
+    #print(unique_edges)
+    #num_unique_edges <- nrow(unique_edges)
+    #out_netind[i, "num_uniq_edges_macro"] <- num_unique_edges
+
     ## invalid dashed edges
     tmp_dat_edges <- igraph::as_data_frame(drawn_CAM[[i]])
     tmp_dat_vertex <- data.frame(name = V(graph = drawn_CAM[[i]])$name,
@@ -216,8 +235,25 @@ compute_indicatorsCAM <- function(drawn_CAM = NULL,
                                                             tmp_merge_valencesdashed$color.y == "red" & tmp_merge_valencesdashed$color == "red") +
       sum(tmp_merge_valencessolid$color.y == "green" & tmp_merge_valencessolid$color == "red")
     ##
+
+    ## unique edges
+    tmp_dat_edges$end1 <- pmin(tmp_dat_edges$from, tmp_dat_edges$to)
+    tmp_dat_edges$end2 <- pmax(tmp_dat_edges$from, tmp_dat_edges$to)
+    unique_edges <- unique(tmp_dat_edges[, c("end1", "end2")])
+    num_unique_edges <- nrow(unique_edges)
+    out_netind[i, "num_uniq_edges_macro"] <- num_unique_edges
+
+
     ### edges weight (1-3) - no difference neg. / pos.
     out_netind[i, "meanWeightEdges_macro"]  <- mean(E(drawn_CAM[[i]])$weight)
+
+    # number of uni- and bidirectional edges
+    # evtl. nach oben zu den anderen Edge Parameter schieben.
+    names(edge_list) <- c("from", "to")
+    unidirectional <- sum(!paste(edge_list$to, edge_list$from) %in% paste(edge_list$from, edge_list$to))
+    bidirectional <- sum(duplicated(paste(pmax(edge_list$from, edge_list$to), pmin(edge_list$from, edge_list$to))))
+    out_netind[i, "num_edges_unidirectional_macro"] <- unidirectional
+    out_netind[i, "num_edges_bidirectional_macro"] <- bidirectional
 
     ### mixed: reciprocity, assortativity
     out_netind[i, "reciprocity_macro"]  <- igraph::reciprocity(drawn_CAM[[i]])
